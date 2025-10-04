@@ -203,42 +203,6 @@
 				stopMatrix();
 			});
 
-			// Easter egg: double-click glitch effect
-			let glitchActive = false;
-
-			document.querySelector('.text').addEventListener('dblclick', (e) => {
-				if (glitchActive) return;
-				glitchActive = true;
-
-				// Corrupt text only
-				const originalText = element.textContent;
-				const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?~`';
-				let glitchInterval = setInterval(() => {
-					element.textContent = Array.from(originalText)
-						.map(() => glitchChars[Math.floor(Math.random() * glitchChars.length)])
-						.join('');
-				}, 50);
-
-				// Stop after 2 seconds and recover
-				setTimeout(() => {
-					clearInterval(glitchInterval);
-
-					// Gradual recovery
-					let recoveryText = element.textContent.split('');
-					let recovered = 0;
-					const recoveryInterval = setInterval(() => {
-						if (recovered < originalText.length) {
-							recoveryText[recovered] = originalText[recovered];
-							element.textContent = recoveryText.join('');
-							recovered++;
-						} else {
-							clearInterval(recoveryInterval);
-							glitchActive = false;
-						}
-					}, 50);
-				}, 2000);
-			});
-
 			window.addEventListener('resize', () => {
 				canvas.width = window.innerWidth;
 				canvas.height = window.innerHeight;
@@ -361,39 +325,4 @@
 		}
 	}
 
-	@keyframes glitch {
-		0% {
-			transform: translate(0);
-		}
-		20% {
-			transform: translate(-2px, 2px);
-		}
-		40% {
-			transform: translate(-2px, -2px);
-		}
-		60% {
-			transform: translate(2px, 2px);
-		}
-		80% {
-			transform: translate(2px, -2px);
-		}
-		100% {
-			transform: translate(0);
-		}
-	}
-
-	@keyframes glitchBg {
-		0% {
-			background-color: #ffffff;
-		}
-		33% {
-			background-color: #ff0000;
-		}
-		66% {
-			background-color: #00ff00;
-		}
-		100% {
-			background-color: #0000ff;
-		}
-	}
 </style>
