@@ -1,0 +1,399 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>scalable - building solutions for problems since 2014</title>
+		<meta name="description" content="Building solutions for problems. Tools and systems that make things work better." />
+		<meta name="author" content="Sadi Kaya" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://scalable.dk/" />
+		<meta property="og:title" content="scalable - building solutions for problems since 2014" />
+		<meta property="og:description" content="Building solutions for problems. Tools and systems that make things work better." />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary" />
+		<meta property="twitter:url" content="https://scalable.dk/" />
+		<meta property="twitter:title" content="scalable - building solutions for problems since 2014" />
+		<meta property="twitter:description" content="Building solutions for problems. Tools and systems that make things work better." />
+
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+	</head>
+	<body>
+		<canvas id="confetti"></canvas>
+		<div class="container">
+			<span class="text"></span>
+			<span class="continuation"></span>
+			<span class="cursor">_</span>
+		</div>
+		<div class="footer">
+			<a href="https://github.com/scalabledk" target="_blank" rel="noopener noreferrer">github</a>
+			<span> • </span>
+			<a href="https://linkedin.com/in/sadikaya" target="_blank" rel="noopener noreferrer">linkedin</a>
+			<span> • </span>
+			<span>building solutions for problems since 2014</span>
+		</div>
+		<script>
+			const sentences = [
+				" systems handle growth without breaking",
+				" architecture adapts to changing demands",
+				" code maintains performance under load",
+				" databases distribute data efficiently",
+				" infrastructure grows with your users",
+				" services degrade gracefully under pressure",
+				" designs avoid bottlenecks from the start",
+				" microservices isolate failures effectively",
+				" caching reduces database strain",
+				" deployments minimize downtime during updates"
+			];
+
+			const element = document.querySelector('.text');
+			const continuation = document.querySelector('.continuation');
+			let i = 0;
+			let j = 0;
+			let currentSentence = "";
+
+			function typeScalable() {
+				if (i < 8) {
+					element.textContent += "scalable".charAt(i);
+					i++;
+					setTimeout(typeScalable, 100);
+				} else {
+					setTimeout(startNewSentence, 800);
+				}
+			}
+
+			function startNewSentence() {
+				currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+				j = 0;
+				continuation.textContent = "";
+				typeContinuation();
+			}
+
+			function typeContinuation() {
+				if (j < currentSentence.length) {
+					continuation.textContent += currentSentence.charAt(j);
+					j++;
+					setTimeout(typeContinuation, 100);
+				} else {
+					setTimeout(deleteContinuation, 5000);
+				}
+			}
+
+			function deleteContinuation() {
+				if (continuation.textContent.length > 0) {
+					continuation.textContent = continuation.textContent.slice(0, -1);
+					setTimeout(deleteContinuation, 50);
+				} else {
+					setTimeout(startNewSentence, 800);
+				}
+			}
+
+			setTimeout(typeScalable, 2000);
+
+			// Matrix effect
+			const canvas = document.getElementById('confetti');
+			const ctx = canvas.getContext('2d');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			const chars = 'scalable0123456789@#$%^&*()';
+			const fontSize = 14;
+			const columns = canvas.width / fontSize;
+			const drops = [];
+			let matrixActive = false;
+			let matrixInterval = null;
+			let fadeOutInterval = null;
+
+			for (let i = 0; i < columns; i++) {
+				drops[i] = 1;
+			}
+
+			function drawMatrix() {
+				ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+				ctx.fillStyle = '#00ff00';
+				ctx.globalAlpha = 0.15;
+				ctx.font = fontSize + 'px "DM Mono", monospace';
+
+				for (let i = 0; i < drops.length; i++) {
+					const text = chars[Math.floor(Math.random() * chars.length)];
+					ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+					if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+						drops[i] = 0;
+					}
+					drops[i]++;
+				}
+				ctx.globalAlpha = 1;
+			}
+
+			function startMatrix() {
+				if (matrixActive) return;
+				matrixActive = true;
+
+				document.body.style.transition = 'background-color 0.8s ease';
+				document.body.style.backgroundColor = '#0a0a0a';
+				document.querySelector('.text').style.transition = 'color 0.8s ease';
+				document.querySelector('.text').style.color = '#00ff00';
+				document.querySelector('.continuation').style.transition = 'color 0.8s ease';
+				document.querySelector('.continuation').style.color = '#00bb00';
+				document.querySelector('.cursor').style.transition = 'color 0.8s ease';
+				document.querySelector('.cursor').style.color = '#00ff00';
+				document.querySelector('.footer').style.transition = 'color 0.8s ease';
+				document.querySelector('.footer').style.color = '#009900';
+				document.querySelectorAll('.footer a').forEach(a => {
+					a.style.transition = 'all 0.8s ease';
+					a.style.color = '#009900';
+					a.style.borderBottom = '1px dotted #009900';
+				});
+
+				matrixInterval = setInterval(drawMatrix, 33);
+			}
+
+			function stopMatrix() {
+				if (!matrixActive) return;
+
+				clearInterval(matrixInterval);
+				matrixActive = false;
+
+				let fadeAlpha = 1;
+				const fadeInterval = setInterval(() => {
+					ctx.fillStyle = `rgba(255, 255, 255, ${0.1})`;
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					fadeAlpha -= 0.05;
+					if (fadeAlpha <= 0) {
+						clearInterval(fadeInterval);
+						ctx.clearRect(0, 0, canvas.width, canvas.height);
+					}
+				}, 30);
+
+				document.body.style.transition = 'background-color 0.8s ease';
+				document.body.style.backgroundColor = '#ffffff';
+				document.querySelector('.text').style.transition = 'color 0.8s ease';
+				document.querySelector('.text').style.color = '#000000';
+				document.querySelector('.continuation').style.transition = 'color 0.8s ease';
+				document.querySelector('.continuation').style.color = '#666666';
+				document.querySelector('.cursor').style.transition = 'color 0.8s ease';
+				document.querySelector('.cursor').style.color = '#000000';
+				document.querySelector('.footer').style.transition = 'color 0.8s ease';
+				document.querySelector('.footer').style.color = '#999999';
+				document.querySelectorAll('.footer a').forEach(a => {
+					a.style.transition = 'all 0.8s ease';
+					a.style.color = '#999999';
+					a.style.borderBottom = '1px dotted #999999';
+				});
+			}
+
+			document.querySelector('.text').addEventListener('mouseenter', (e) => {
+				startMatrix();
+			});
+
+			document.querySelector('.text').addEventListener('mouseleave', (e) => {
+				stopMatrix();
+			});
+
+			// Easter egg: double-click glitch effect
+			let glitchActive = false;
+
+			document.querySelector('.text').addEventListener('dblclick', (e) => {
+				if (glitchActive) return;
+				glitchActive = true;
+
+				// Corrupt text only
+				const originalText = element.textContent;
+				const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?~`';
+				let glitchInterval = setInterval(() => {
+					element.textContent = Array.from(originalText)
+						.map(() => glitchChars[Math.floor(Math.random() * glitchChars.length)])
+						.join('');
+				}, 50);
+
+				// Stop after 2 seconds and recover
+				setTimeout(() => {
+					clearInterval(glitchInterval);
+
+					// Gradual recovery
+					let recoveryText = element.textContent.split('');
+					let recovered = 0;
+					const recoveryInterval = setInterval(() => {
+						if (recovered < originalText.length) {
+							recoveryText[recovered] = originalText[recovered];
+							element.textContent = recoveryText.join('');
+							recovered++;
+						} else {
+							clearInterval(recoveryInterval);
+							glitchActive = false;
+						}
+					}, 50);
+				}, 2000);
+			});
+
+			window.addEventListener('resize', () => {
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+			});
+		</script>
+	</body>
+</html>
+
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	body {
+		background: #ffffff;
+		font-family: 'DM Mono', monospace;
+		color: #000000;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.container {
+		padding: 2rem;
+		font-size: 1rem;
+	}
+
+	.text {
+		color: #000000;
+		cursor: pointer;
+		position: relative;
+		display: inline-block;
+		z-index: 1000;
+	}
+
+	#confetti {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.continuation {
+		color: #666666;
+		z-index: 1000;
+		position: relative;
+	}
+
+	.cursor {
+		z-index: 1000;
+		position: relative;
+	}
+
+	.container {
+		position: relative;
+		z-index: 1000;
+	}
+
+	.cursor {
+		animation: blink 1s step-end infinite;
+	}
+
+	@keyframes blink {
+		0%, 50% {
+			opacity: 1;
+		}
+		50.01%, 100% {
+			opacity: 0;
+		}
+	}
+
+	.footer {
+		position: fixed;
+		bottom: 2rem;
+		left: 0;
+		right: 0;
+		text-align: center;
+		font-size: 0.875rem;
+		color: #999999;
+		z-index: 1000;
+	}
+
+	.footer a {
+		color: #999999;
+		text-decoration: none;
+		transition: all 0.3s ease;
+		border-bottom: 1px dotted #999999;
+	}
+
+	.footer a:hover {
+		color: #000000;
+		border-bottom: 1px solid #000000;
+	}
+
+	@media (max-width: 768px) {
+		.container {
+			padding: 1.5rem;
+		}
+
+		.footer {
+			bottom: 1rem;
+			font-size: 0.75rem;
+			padding: 0 1rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.container {
+			padding: 1rem;
+			font-size: 0.9rem;
+		}
+
+		.footer {
+			bottom: 1rem;
+			font-size: 0.7rem;
+		}
+	}
+
+	@keyframes glitch {
+		0% {
+			transform: translate(0);
+		}
+		20% {
+			transform: translate(-2px, 2px);
+		}
+		40% {
+			transform: translate(-2px, -2px);
+		}
+		60% {
+			transform: translate(2px, 2px);
+		}
+		80% {
+			transform: translate(2px, -2px);
+		}
+		100% {
+			transform: translate(0);
+		}
+	}
+
+	@keyframes glitchBg {
+		0% {
+			background-color: #ffffff;
+		}
+		33% {
+			background-color: #ff0000;
+		}
+		66% {
+			background-color: #00ff00;
+		}
+		100% {
+			background-color: #0000ff;
+		}
+	}
+</style>
