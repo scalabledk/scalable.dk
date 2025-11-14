@@ -35,6 +35,69 @@
 			<span class="continuation"></span>
 			<span class="cursor">_</span>
 		</div>
+		<div class="projects-hint">
+			<span class="hint-text">what have we built?</span>
+		</div>
+		<div class="collab-cursor" data-cursor-id="0" data-name="neo">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+			</svg>
+			<span class="collab-name">neo</span>
+		</div>
+		<div class="collab-cursor" data-cursor-id="1" data-name="trinity">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+			</svg>
+			<span class="collab-name">trinity</span>
+		</div>
+		<div class="collab-cursor" data-cursor-id="2" data-name="morpheus">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+			</svg>
+			<span class="collab-name">morpheus</span>
+		</div>
+		<div class="collab-cursor" data-cursor-id="3" data-name="oracle">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+			</svg>
+			<span class="collab-name">oracle</span>
+		</div>
+		<div class="collab-cursor" data-cursor-id="4" data-name="cypher">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+			</svg>
+			<span class="collab-name">cypher</span>
+		</div>
+		<div class="projects-section">
+			<div class="project-card" data-project="strata">
+				<div class="card-header">
+					<h2>strata</h2>
+				</div>
+				<div class="problem-section">
+					<h3 class="problem-label">problem</h3>
+					<p class="problem-description">organizations struggle with workforce planning - tracking headcount, forecasting budgets, modeling what-if scenarios, and visualizing team structures across complex hierarchies</p>
+				</div>
+				<div class="solution-section">
+					<h3 class="solution-label">solution</h3>
+					<p class="solution-description">import your org data from excel, create multiple planning scenarios, forecast headcount and budget impacts, visualize org charts and team composition - all encrypted and running locally in your browser</p>
+				</div>
+				<div class="card-features">
+					<span class="feature">scenario planning</span>
+					<span class="feature">headcount forecasting</span>
+					<span class="feature">budget tracking</span>
+					<span class="feature">org visualization</span>
+					<span class="feature">encrypted storage</span>
+				</div>
+				<div class="card-tech">
+					<span class="tech-badge">react</span>
+					<span class="tech-badge">typescript</span>
+					<span class="tech-badge">client-side encryption</span>
+				</div>
+				<a href="https://strata.scalable.dk" target="_blank" rel="noopener noreferrer" class="card-link">
+					launch strata →
+				</a>
+			</div>
+		</div>
 		<div class="footer">
 			<a href="https://github.com/scalabledk" target="_blank" rel="noopener noreferrer">github</a>
 			<span> • </span>
@@ -207,6 +270,564 @@
 				canvas.width = window.innerWidth;
 				canvas.height = window.innerHeight;
 			});
+
+			// Projects and collaborative cursors system
+			const projectsSection = document.querySelector('.projects-section');
+			const projectsHint = document.querySelector('.projects-hint');
+			const hintText = document.querySelector('.hint-text') as HTMLElement | null;
+			const textElement = document.querySelector('.text');
+			const originalHintText = 'what have we built?';
+			const matrixHintText = 'there is no spoon';
+			let projectsVisible = false;
+
+			// Matrix effect integration with hint text
+			const scalableText = document.querySelector('.text') as HTMLElement;
+			if (scalableText) {
+				scalableText.addEventListener('mouseenter', () => {
+					if (hintText) {
+						hintText.textContent = matrixHintText;
+						hintText.style.transition = 'all 0.8s ease';
+						hintText.style.color = '#00ff00';
+						hintText.style.borderColor = '#00ff00';
+					}
+				});
+
+				scalableText.addEventListener('mouseleave', () => {
+					if (hintText) {
+						hintText.textContent = originalHintText;
+						hintText.style.transition = 'all 0.8s ease';
+						hintText.style.color = '';
+						hintText.style.borderColor = '';
+					}
+				});
+			}
+
+			function toggleProjects() {
+				if (!projectsSection || !projectsHint) return;
+				projectsVisible = !projectsVisible;
+				if (projectsVisible) {
+					projectsSection.classList.add('visible');
+					projectsHint.classList.add('hidden');
+				} else {
+					projectsSection.classList.remove('visible');
+					projectsHint.classList.remove('hidden');
+				}
+			}
+
+			if (hintText) {
+				hintText.addEventListener('click', (e) => {
+					e.stopPropagation();
+					toggleProjects();
+				});
+			}
+
+			if (textElement) {
+				textElement.addEventListener('click', (e) => {
+					e.stopPropagation();
+					toggleProjects();
+				});
+			}
+
+			document.addEventListener('click', (e) => {
+				if (projectsVisible && projectsSection && textElement && e.target instanceof Node) {
+					if (!projectsSection.contains(e.target) && !textElement.contains(e.target)) {
+						toggleProjects();
+					}
+				}
+			});
+
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape' && projectsVisible) {
+					toggleProjects();
+				}
+			});
+
+			// Multi-cursor collaborative system
+			const MAX_CURSORS = 5;
+			const CLICKS_TO_SPAWN = 3; // Number of clicks before spawning next cursor
+			const cursors: HTMLElement[] = [];
+			for (let i = 0; i < MAX_CURSORS; i++) {
+				const el = document.querySelector(`[data-cursor-id="${i}"]`) as HTMLElement;
+				if (el) cursors.push(el);
+			}
+
+			interface CursorState {
+				isAnimating: boolean;
+				isExiting: boolean;
+				isClicking: boolean;
+				isWaiting: boolean;
+				posX: number;
+				posY: number;
+			}
+
+			const cursorStates = new Map<number, CursorState>();
+			for (let i = 0; i < MAX_CURSORS; i++) {
+				cursorStates.set(i, {
+					isAnimating: false,
+					isExiting: false,
+					isClicking: false,
+					isWaiting: false,
+					posX: 0,
+					posY: 0
+				});
+			}
+
+			let activeCursorCount = 0;
+			let activeClickingCursor = -1;
+			let clickCount = 0; // Track clicks of active cursor
+			let isHovering = false;
+
+			function createCursorController(cursorId: number) {
+				const cursor = cursors[cursorId];
+				const state = cursorStates.get(cursorId)!;
+				let exitAnimationId: number | null = null;
+
+				function startExitAnimation() {
+					if (!cursor || state.isExiting) return;
+
+					state.isExiting = true;
+					state.isClicking = false;
+					state.isWaiting = false;
+
+					const exitEdge = Math.floor(Math.random() * 4);
+					let exitX = 0, exitY = 0;
+
+					switch(exitEdge) {
+						case 0: exitX = Math.random() * window.innerWidth; exitY = -100; break;
+						case 1: exitX = window.innerWidth + 100; exitY = Math.random() * window.innerHeight; break;
+						case 2: exitX = Math.random() * window.innerWidth; exitY = window.innerHeight + 100; break;
+						case 3: exitX = -100; exitY = Math.random() * window.innerHeight; break;
+					}
+
+					const startX = state.posX;
+					const startY = state.posY;
+					const duration = 1500;
+					const startTime = performance.now();
+
+					function animateExit(time: number) {
+						if (!cursor || !state.isExiting) return;
+
+						const elapsed = time - startTime;
+						const progress = Math.min(elapsed / duration, 1);
+						const eased = progress * progress;
+
+						state.posX = startX + (exitX - startX) * eased;
+						state.posY = startY + (exitY - startY) * eased;
+
+						cursor.style.left = state.posX + 'px';
+						cursor.style.top = state.posY + 'px';
+
+						if (progress < 1) {
+							exitAnimationId = requestAnimationFrame(animateExit);
+						} else {
+							cursor.classList.remove('active');
+							state.isAnimating = false;
+							state.isExiting = false;
+							activeCursorCount--;
+						}
+					}
+
+					exitAnimationId = requestAnimationFrame(animateExit);
+				}
+
+				function cancelExit() {
+					if (exitAnimationId !== null) {
+						cancelAnimationFrame(exitAnimationId);
+						exitAnimationId = null;
+					}
+					state.isExiting = false;
+				}
+
+				function resumeWaiting() {
+					if (!cursor || !hintText || !isHovering) return;
+
+					cancelExit();
+
+					// If cursor was in waiting position, move it back there
+					if (state.isWaiting) {
+						// Just stay in current position and mark as waiting again
+						state.isWaiting = true;
+					} else {
+						// Move to a waiting position
+						moveToWaitingPosition();
+					}
+				}
+
+				function moveToWaitingPosition() {
+					if (!cursor || !hintText) return;
+
+					const hintRect = hintText.getBoundingClientRect();
+					const angle = Math.random() * Math.PI * 2;
+					const distance = 250 + Math.random() * 150; // Increased distance: 250-400px from center
+
+					const targetX = hintRect.left + hintRect.width / 2 + Math.cos(angle) * distance;
+					const targetY = hintRect.top + hintRect.height / 2 + Math.sin(angle) * distance;
+
+					const startX = state.posX;
+					const startY = state.posY;
+					const duration = 800;
+					const startTime = performance.now();
+
+					state.isClicking = false;
+					state.isWaiting = true;
+
+					function animate(time: number) {
+						if (!cursor || state.isExiting || !isHovering) return;
+
+						const elapsed = time - startTime;
+						const progress = Math.min(elapsed / duration, 1);
+						const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+						state.posX = startX + (targetX - startX) * eased;
+						state.posY = startY + (targetY - startY) * eased;
+
+						cursor.style.left = state.posX + 'px';
+						cursor.style.top = state.posY + 'px';
+
+						if (progress < 1) {
+							requestAnimationFrame(animate);
+						}
+					}
+
+					requestAnimationFrame(animate);
+				}
+
+				function resumeClicking() {
+					if (!cursor || !hintText || !isHovering) return;
+
+					cancelExit();
+					state.isAnimating = true;
+
+					// Animate back to hint box center
+					const hintRect = hintText.getBoundingClientRect();
+					const targetX = hintRect.left + hintRect.width / 2;
+					const targetY = hintRect.top + hintRect.height / 2;
+
+					const startX = state.posX;
+					const startY = state.posY;
+					const duration = 1000;
+					const startTime = performance.now();
+
+					function animate(time: number) {
+						if (!cursor) return;
+
+						// Calculate current position
+						const elapsed = time - startTime;
+						const progress = Math.min(elapsed / duration, 1);
+						const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+						const currentX = startX + (targetX - startX) * eased;
+						const currentY = startY + (targetY - startY) * eased;
+
+						// Always update state position
+						state.posX = currentX;
+						state.posY = currentY;
+
+						cursor.style.left = currentX + 'px';
+						cursor.style.top = currentY + 'px';
+
+						// If unhovered during resume animation, start exit from current position (only if not already exiting)
+						if (!isHovering && !state.isExiting) {
+							state.isAnimating = false;
+							startExitAnimation();
+							return;
+						}
+
+						// If hovering, continue animation
+						if (isHovering && progress < 1) {
+							requestAnimationFrame(animate);
+						} else if (isHovering && progress >= 1) {
+							state.isAnimating = false;
+							state.isClicking = true;
+							state.isWaiting = false;
+							activeClickingCursor = cursorId;
+							clickCount = 0;
+							startClickingBehavior();
+						}
+					}
+
+					requestAnimationFrame(animate);
+				}
+
+				function startClickingBehavior() {
+					if (!cursor || !hintText) return;
+
+					state.isClicking = true;
+					state.isWaiting = false;
+
+					function performClick() {
+						if (!cursor || !state.isClicking || !isHovering) {
+							return;
+						}
+
+						// Increment click counter and check if we should spawn next cursor or finish
+						if (cursorId === activeClickingCursor) {
+							clickCount++;
+							if (clickCount >= CLICKS_TO_SPAWN) {
+								if (activeCursorCount < MAX_CURSORS) {
+									// Spawn next cursor
+									clickCount = 0; // Reset counter
+									spawnNextCursor();
+								} else {
+									// All cursors spawned and last one clicked 3 times - exit all
+									for (let i = 0; i < activeCursorCount; i++) {
+										controllers[i].startExitAnimation();
+									}
+									return;
+								}
+							}
+						}
+
+						cursor.style.transform = 'scale(0.8)';
+						setTimeout(() => {
+							if (!cursor || !isHovering) return;
+							cursor.style.transform = 'scale(1)';
+
+							setTimeout(() => {
+								if (!cursor || !hintText || !state.isClicking || !isHovering) {
+									return;
+								}
+
+								const hintRect = hintText.getBoundingClientRect();
+								const padding = 20;
+								const minX = hintRect.left + padding;
+								const maxX = hintRect.right - padding;
+								const minY = hintRect.top + padding;
+								const maxY = hintRect.bottom - padding;
+
+								const newPosX = minX + Math.random() * (maxX - minX);
+								const newPosY = minY + Math.random() * (maxY - minY);
+
+								const moveStartX = state.posX;
+								const moveStartY = state.posY;
+								const moveDuration = 400;
+								const moveStartTime = performance.now();
+
+								function animateMove(time: number) {
+									if (!cursor || !state.isClicking || !isHovering) {
+										return;
+									}
+
+									const elapsed = time - moveStartTime;
+									const progress = Math.min(elapsed / moveDuration, 1);
+									const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+									state.posX = moveStartX + (newPosX - moveStartX) * eased;
+									state.posY = moveStartY + (newPosY - moveStartY) * eased;
+
+									cursor.style.left = state.posX + 'px';
+									cursor.style.top = state.posY + 'px';
+
+									if (progress < 1) {
+										requestAnimationFrame(animateMove);
+									} else {
+										setTimeout(performClick, 300);
+									}
+								}
+
+								requestAnimationFrame(animateMove);
+							}, 1500);
+						}, 100);
+					}
+
+					setTimeout(performClick, 200);
+				}
+
+				function resumeEntry() {
+					if (!cursor || !hintText || !isHovering) return;
+
+					cancelExit();
+					state.isAnimating = true;
+
+					// Continue from current position to hint box center
+					const hintRect = hintText.getBoundingClientRect();
+					const targetX = hintRect.left + hintRect.width / 2;
+					const targetY = hintRect.top + hintRect.height / 2;
+
+					const startX = state.posX;
+					const startY = state.posY;
+					const duration = 1500;
+					const startTime = performance.now();
+
+					function animate(currentTime: number) {
+						if (!cursor) return;
+
+						// Calculate current position
+						const elapsed = currentTime - startTime;
+						const progress = Math.min(elapsed / duration, 1);
+						const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+						const currentX = startX + (targetX - startX) * eased;
+						const currentY = startY + (targetY - startY) * eased;
+
+						// Update state position
+						state.posX = currentX;
+						state.posY = currentY;
+
+						cursor.style.left = currentX + 'px';
+						cursor.style.top = currentY + 'px';
+
+						// If unhovered during entry, start exit from current position (only if not already exiting)
+						if (!isHovering && !state.isExiting) {
+							state.isAnimating = false;
+							startExitAnimation();
+							return;
+						}
+
+						// If hovering, continue animation
+						if (isHovering && progress < 1) {
+							requestAnimationFrame(animate);
+						} else if (isHovering && progress >= 1) {
+							state.isAnimating = false;
+
+							// Move previous clicking cursor to waiting position
+							if (activeClickingCursor >= 0 && activeClickingCursor !== cursorId) {
+								const prevController = controllers[activeClickingCursor];
+								prevController.moveToWaitingPosition();
+							}
+
+							// Start this cursor clicking and reset click counter
+							activeClickingCursor = cursorId;
+							clickCount = 0;
+							startClickingBehavior();
+						}
+					}
+
+					requestAnimationFrame(animate);
+				}
+
+				function startCursor() {
+					if (!cursor || !hintText || state.isAnimating) return;
+
+					state.isAnimating = true;
+					cancelExit();
+
+					const hintRect = hintText.getBoundingClientRect();
+					const targetX = hintRect.left + hintRect.width / 2;
+					const targetY = hintRect.top + hintRect.height / 2;
+
+					const edge = Math.floor(Math.random() * 4);
+					let startX = 0, startY = 0;
+
+					switch(edge) {
+						case 0: startX = Math.random() * window.innerWidth; startY = -50; break;
+						case 1: startX = window.innerWidth + 50; startY = Math.random() * window.innerHeight; break;
+						case 2: startX = Math.random() * window.innerWidth; startY = window.innerHeight + 50; break;
+						case 3: startX = -50; startY = Math.random() * window.innerHeight; break;
+					}
+
+					// Initialize state position
+					state.posX = startX;
+					state.posY = startY;
+
+					cursor.style.left = startX + 'px';
+					cursor.style.top = startY + 'px';
+					cursor.classList.add('active');
+
+					const duration = 2500;
+					const startTime = performance.now();
+
+					function animate(currentTime: number) {
+						if (!cursor) return;
+
+						// Calculate current position
+						const elapsed = currentTime - startTime;
+						const progress = Math.min(elapsed / duration, 1);
+						const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+						const currentX = startX + (targetX - startX) * eased;
+						const currentY = startY + (targetY - startY) * eased;
+
+						// Update state position
+						state.posX = currentX;
+						state.posY = currentY;
+
+						cursor.style.left = currentX + 'px';
+						cursor.style.top = currentY + 'px';
+
+						// If unhovered during entry, start exit from current position (only if not already exiting)
+						if (!isHovering && !state.isExiting) {
+							state.isAnimating = false;
+							startExitAnimation();
+							return;
+						}
+
+						// If hovering, continue animation
+						if (isHovering && progress < 1) {
+							requestAnimationFrame(animate);
+						} else if (isHovering && progress >= 1) {
+							state.isAnimating = false;
+
+							// Move previous clicking cursor to waiting position
+							if (activeClickingCursor >= 0 && activeClickingCursor !== cursorId) {
+								const prevController = controllers[activeClickingCursor];
+								prevController.moveToWaitingPosition();
+							}
+
+							// Start this cursor clicking and reset click counter
+							activeClickingCursor = cursorId;
+							clickCount = 0;
+							startClickingBehavior();
+						}
+					}
+
+					requestAnimationFrame(animate);
+				}
+
+				return { startCursor, startExitAnimation, cancelExit, resumeClicking, resumeWaiting, resumeEntry, moveToWaitingPosition, state };
+			}
+
+			const controllers = cursors.map((_, i) => createCursorController(i));
+
+			function spawnNextCursor() {
+				if (activeCursorCount < MAX_CURSORS && isHovering) {
+					controllers[activeCursorCount].startCursor();
+					activeCursorCount++;
+				}
+			}
+
+			if (hintText) {
+				hintText.addEventListener('mouseenter', () => {
+					if (projectsVisible) return;
+
+					isHovering = true;
+
+					// Resume any exiting cursors or continue their behavior
+					for (let i = 0; i < activeCursorCount; i++) {
+						const state = cursorStates.get(i);
+						if (state && state.isExiting) {
+							// Cancel exit and determine what to do based on previous state
+							if (i === activeClickingCursor) {
+								// Was the active clicking cursor - resume clicking
+								controllers[i].resumeClicking();
+							} else if (state.isWaiting) {
+								// Was waiting - resume waiting
+								controllers[i].resumeWaiting();
+							} else if (state.isAnimating) {
+								// Was entering - resume entry animation
+								controllers[i].resumeEntry();
+							} else {
+								// Unknown state - resume entry
+								controllers[i].resumeEntry();
+							}
+						}
+					}
+
+					// Spawn first cursor immediately if none exist
+					if (activeCursorCount === 0) {
+						spawnNextCursor();
+					}
+				});
+
+				hintText.addEventListener('mouseleave', () => {
+					isHovering = false;
+
+					// Start exit animation for all active cursors
+					for (let i = 0; i < activeCursorCount; i++) {
+						controllers[i].startExitAnimation();
+					}
+				});
+			}
 		</script>
 	</body>
 </html>
@@ -323,6 +944,203 @@
 			bottom: 1rem;
 			font-size: 0.7rem;
 		}
+	}
+
+	/* Projects hint and card */
+	.projects-hint {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 998;
+		text-align: center;
+		opacity: 1;
+		pointer-events: none;
+		transition: opacity 0.5s ease;
+	}
+
+	.projects-hint.hidden {
+		opacity: 0;
+	}
+
+	.hint-text {
+		font-size: 0.9rem;
+		color: #999999;
+		cursor: pointer;
+		pointer-events: all;
+		padding: 0.75rem 1.5rem;
+		border: 1px dashed #e0e0e0;
+		border-radius: 4px;
+		display: inline-block;
+		transition: all 0.3s ease;
+	}
+
+	.hint-text:hover {
+		color: #000000;
+		border-color: #000000;
+		background: rgba(255, 255, 255, 0.8);
+	}
+
+	.projects-section {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 10000;
+		max-width: 600px;
+		width: 90%;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.5s ease;
+	}
+
+	.projects-section.visible {
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	.project-card {
+		background: rgba(255, 255, 255, 0.98);
+		border: 1px solid #e0e0e0;
+		padding: 2rem;
+		border-radius: 4px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		transition: all 0.3s ease;
+	}
+
+	.project-card:hover {
+		border-color: #000000;
+		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+	}
+
+	.card-header h2 {
+		font-size: 1.5rem;
+		font-weight: 400;
+		margin: 0 0 1.5rem 0;
+	}
+
+	.problem-section,
+	.solution-section {
+		margin-bottom: 1.5rem;
+	}
+
+	.problem-label,
+	.solution-label {
+		font-size: 0.7rem;
+		font-weight: 400;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.problem-label {
+		color: #cc0000;
+	}
+
+	.solution-label {
+		color: #00aa00;
+	}
+
+	.problem-description,
+	.solution-description {
+		color: #333333;
+		line-height: 1.6;
+		font-size: 0.85rem;
+		margin: 0;
+	}
+
+	.card-features {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.feature {
+		font-size: 0.8rem;
+		color: #666666;
+	}
+
+	.card-tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.tech-badge {
+		font-size: 0.7rem;
+		color: #000000;
+		padding: 0.25rem 0.5rem;
+		border: 1px solid #000000;
+		border-radius: 3px;
+		background: transparent;
+		text-transform: lowercase;
+	}
+
+	.card-link {
+		display: inline-block;
+		color: #000000;
+		text-decoration: none;
+		border-bottom: 1px solid #000000;
+		padding-bottom: 2px;
+		transition: all 0.3s ease;
+		font-size: 0.9rem;
+	}
+
+	.card-link:hover {
+		color: #666666;
+		border-bottom-color: #666666;
+	}
+
+	/* Collaborative cursors */
+	.collab-cursor {
+		position: fixed;
+		pointer-events: none;
+		opacity: 0;
+		z-index: 9999;
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		transition: opacity 0.3s ease, transform 0.1s ease;
+	}
+
+	.collab-cursor.active {
+		opacity: 1;
+	}
+
+	.collab-cursor svg {
+		flex-shrink: 0;
+	}
+
+	.collab-name {
+		color: #000000;
+		padding: 0.25rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		white-space: nowrap;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	/* Different colors for each character */
+	[data-name="neo"] .collab-name {
+		background: #00ff00;
+	}
+
+	[data-name="trinity"] .collab-name {
+		background: #ff00ff;
+	}
+
+	[data-name="morpheus"] .collab-name {
+		background: #00ffff;
+	}
+
+	[data-name="oracle"] .collab-name {
+		background: #ffff00;
+	}
+
+	[data-name="cypher"] .collab-name {
+		background: #ff6600;
 	}
 
 </style>
