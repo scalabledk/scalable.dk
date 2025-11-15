@@ -1,4 +1,23 @@
 ---
+import { execSync } from 'child_process';
+
+// Get Git metadata
+let gitCommit = 'unknown';
+let gitBranch = 'unknown';
+let buildDate = new Date().toISOString();
+
+try {
+	gitCommit = execSync('git rev-parse --short HEAD').toString().trim();
+	gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+} catch (e) {
+	console.warn('Unable to fetch git metadata');
+}
+
+const buildInfo = {
+	commit: gitCommit,
+	branch: gitBranch,
+	date: buildDate,
+};
 ---
 
 <!doctype html>
@@ -72,41 +91,79 @@
 			<span class="collab-name">cypher</span>
 		</div>
 		<div class="projects-section">
-			<div class="project-card" data-project="strata">
-				<div class="card-header">
-					<h2>strata</h2>
+			<div class="projects-carousel">
+				<div class="project-card" data-project="strata">
+					<div class="card-header">
+						<h2>strata</h2>
+					</div>
+					<div class="problem-section">
+						<h3 class="problem-label">problem</h3>
+						<p class="problem-description">organizations struggle with workforce planning - tracking headcount, forecasting budgets, modeling what-if scenarios, and visualizing team structures across complex hierarchies</p>
+					</div>
+					<div class="solution-section">
+						<h3 class="solution-label">solution</h3>
+						<p class="solution-description">import your org data from excel, create multiple planning scenarios, forecast headcount and budget impacts, visualize org charts and team composition - all encrypted and running locally in your browser</p>
+					</div>
+					<div class="card-features">
+						<span class="feature">scenario planning</span>
+						<span class="feature">headcount forecasting</span>
+						<span class="feature">budget tracking</span>
+						<span class="feature">org visualization</span>
+						<span class="feature">encrypted storage</span>
+					</div>
+					<div class="card-tech">
+						<span class="tech-badge">react</span>
+						<span class="tech-badge">typescript</span>
+						<span class="tech-badge">client-side encryption</span>
+					</div>
+					<a href="https://strata.scalable.dk" target="_blank" rel="noopener noreferrer" class="card-link">
+						launch strata →
+					</a>
 				</div>
-				<div class="problem-section">
-					<h3 class="problem-label">problem</h3>
-					<p class="problem-description">organizations struggle with workforce planning - tracking headcount, forecasting budgets, modeling what-if scenarios, and visualizing team structures across complex hierarchies</p>
+				<div class="project-card" data-project="matematikspillet">
+					<div class="card-header">
+						<h2>matematikspillet</h2>
+						<p class="card-story">built with my son to make math practice fun</p>
+					</div>
+					<div class="problem-section">
+						<h3 class="problem-label">problem</h3>
+						<p class="problem-description">children aged 6-9 need engaging, personalized ways to practice arithmetic without the boredom of traditional drill methods</p>
+					</div>
+					<div class="solution-section">
+						<h3 class="solution-label">solution</h3>
+						<p class="solution-description">an interactive math game with progressive difficulty levels, streak bonuses, achievement celebrations, and colorful child-friendly design - making math practice fun and motivating</p>
+					</div>
+					<div class="card-features">
+						<span class="feature">gamified learning</span>
+						<span class="feature">personalization</span>
+						<span class="feature">progressive difficulty</span>
+						<span class="feature">streak system</span>
+						<span class="feature">achievements</span>
+					</div>
+					<div class="card-tech">
+						<span class="tech-badge">react</span>
+						<span class="tech-badge">vite</span>
+						<span class="tech-badge">tailwind css</span>
+					</div>
+					<a href="https://ridvan.dk" target="_blank" rel="noopener noreferrer" class="card-link">
+						launch matematikspillet →
+					</a>
 				</div>
-				<div class="solution-section">
-					<h3 class="solution-label">solution</h3>
-					<p class="solution-description">import your org data from excel, create multiple planning scenarios, forecast headcount and budget impacts, visualize org charts and team composition - all encrypted and running locally in your browser</p>
-				</div>
-				<div class="card-features">
-					<span class="feature">scenario planning</span>
-					<span class="feature">headcount forecasting</span>
-					<span class="feature">budget tracking</span>
-					<span class="feature">org visualization</span>
-					<span class="feature">encrypted storage</span>
-				</div>
-				<div class="card-tech">
-					<span class="tech-badge">react</span>
-					<span class="tech-badge">typescript</span>
-					<span class="tech-badge">client-side encryption</span>
-				</div>
-				<a href="https://strata.scalable.dk" target="_blank" rel="noopener noreferrer" class="card-link">
-					launch strata →
-				</a>
 			</div>
 		</div>
 		<div class="footer">
-			<a href="https://github.com/scalabledk" target="_blank" rel="noopener noreferrer">github</a>
-			<span> • </span>
-			<a href="https://www.linkedin.com/company/scalabledk/" target="_blank" rel="noopener noreferrer">linkedin</a>
-			<span> • </span>
-			<span>building solutions for problems since 2014</span>
+			<div class="footer-links">
+				<a href="https://github.com/scalabledk" target="_blank" rel="noopener noreferrer">github</a>
+				<span> • </span>
+				<a href="https://www.linkedin.com/company/scalabledk/" target="_blank" rel="noopener noreferrer">linkedin</a>
+				<span> • </span>
+				<span>building solutions for problems since 2014</span>
+			</div>
+			<div class="footer-version">
+				<span class="version-info" title={`Built: ${buildInfo.date}`}>
+					{buildInfo.commit}
+				</span>
+			</div>
 		</div>
 		<script>
 			const sentences = [
@@ -282,6 +339,8 @@
 			const originalHintText = 'what have we built?';
 			const matrixHintText = 'there is no spoon';
 			let projectsVisible = false;
+			let activeCardIndex = 0;
+			const projectCards = document.querySelectorAll('.project-card');
 
 			// Matrix effect integration with hint text
 			const scalableText = document.querySelector('.text') as HTMLElement;
@@ -305,17 +364,37 @@
 				});
 			}
 
+			function updateActiveCard(index: number) {
+				projectCards.forEach((card, i) => {
+					if (i === index) {
+						card.classList.add('active');
+					} else {
+						card.classList.remove('active');
+					}
+				});
+				activeCardIndex = index;
+			}
+
 			function toggleProjects() {
 				if (!projectsSection || !projectsHint) return;
 				projectsVisible = !projectsVisible;
 				if (projectsVisible) {
 					projectsSection.classList.add('visible');
 					projectsHint.classList.add('hidden');
+					updateActiveCard(0); // Set first card as active when opening
 				} else {
 					projectsSection.classList.remove('visible');
 					projectsHint.classList.remove('hidden');
 				}
 			}
+
+			// Add click handlers for project cards
+			projectCards.forEach((card, index) => {
+				card.addEventListener('click', (e) => {
+					e.stopPropagation();
+					updateActiveCard(index);
+				});
+			});
 
 			if (hintText) {
 				hintText.addEventListener('click', (e) => {
@@ -342,6 +421,19 @@
 			document.addEventListener('keydown', (e) => {
 				if (e.key === 'Escape' && projectsVisible) {
 					toggleProjects();
+				}
+
+				// Carousel keyboard navigation
+				if (projectsVisible) {
+					if (e.key === 'ArrowLeft') {
+						e.preventDefault();
+						const newIndex = activeCardIndex > 0 ? activeCardIndex - 1 : projectCards.length - 1;
+						updateActiveCard(newIndex);
+					} else if (e.key === 'ArrowRight') {
+						e.preventDefault();
+						const newIndex = activeCardIndex < projectCards.length - 1 ? activeCardIndex + 1 : 0;
+						updateActiveCard(newIndex);
+					}
 				}
 			});
 
@@ -911,6 +1003,32 @@
 		font-size: 0.875rem;
 		color: #999999;
 		z-index: 1000;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		align-items: center;
+	}
+
+	.footer-links {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.footer-version {
+		font-size: 0.7rem;
+		color: #cccccc;
+	}
+
+	.version-info {
+		font-family: 'DM Mono', monospace;
+		opacity: 0.7;
+		transition: opacity 0.3s ease;
+		cursor: help;
+	}
+
+	.version-info:hover {
+		opacity: 1;
 	}
 
 	.footer a {
@@ -935,6 +1053,20 @@
 			font-size: 0.75rem;
 			padding: 0 1rem;
 		}
+
+		.projects-carousel {
+			flex-direction: column;
+			gap: 1.5rem;
+		}
+
+		.project-card {
+			width: 100%;
+			max-width: 450px;
+		}
+
+		.project-card:not(.active) {
+			display: none;
+		}
 	}
 
 	@media (max-width: 480px) {
@@ -946,6 +1078,14 @@
 		.footer {
 			bottom: 1rem;
 			font-size: 0.7rem;
+		}
+
+		.project-card {
+			padding: 1.5rem;
+		}
+
+		.card-header h2 {
+			font-size: 1.25rem;
 		}
 	}
 
@@ -990,16 +1130,26 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		z-index: 10000;
-		max-width: 600px;
-		width: 90%;
+		width: 100%;
+		max-width: 1200px;
 		opacity: 0;
 		pointer-events: none;
 		transition: opacity 0.5s ease;
+		overflow: visible;
 	}
 
 	.projects-section.visible {
 		opacity: 1;
 		pointer-events: all;
+	}
+
+	.projects-carousel {
+		display: flex;
+		gap: 2rem;
+		justify-content: center;
+		align-items: center;
+		perspective: 1000px;
+		padding: 2rem;
 	}
 
 	.project-card {
@@ -1008,18 +1158,42 @@
 		padding: 2rem;
 		border-radius: 4px;
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-		transition: all 0.3s ease;
+		transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		flex-shrink: 0;
+		width: 500px;
+		max-width: 90vw;
+		cursor: pointer;
+		transform: scale(0.85) translateY(0);
+		opacity: 0.6;
+		filter: blur(1px);
 	}
 
-	.project-card:hover {
+	.project-card.active {
+		transform: scale(1) translateY(-20px);
+		opacity: 1;
+		filter: blur(0);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 		border-color: #000000;
-		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+		z-index: 10;
+	}
+
+	.project-card:hover:not(.active) {
+		opacity: 0.8;
+		transform: scale(0.9) translateY(-5px);
 	}
 
 	.card-header h2 {
 		font-size: 1.5rem;
 		font-weight: 400;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.card-story {
+		font-size: 0.8rem;
+		color: #666666;
+		font-style: italic;
 		margin: 0 0 1.5rem 0;
+		line-height: 1.4;
 	}
 
 	.problem-section,
