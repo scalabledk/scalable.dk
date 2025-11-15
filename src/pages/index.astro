@@ -91,7 +91,17 @@ const buildInfo = {
 			<span class="collab-name">cypher</span>
 		</div>
 		<div class="projects-section">
-			<div class="projects-carousel">
+			<button class="carousel-arrow carousel-arrow-left" id="carousel-prev" aria-label="Previous project">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+			<button class="carousel-arrow carousel-arrow-right" id="carousel-next" aria-label="Next project">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+			<div class="projects-carousel" id="projects-carousel">
 				<div class="project-card" data-project="strata">
 					<div class="card-header">
 						<h2>strata</h2>
@@ -150,6 +160,7 @@ const buildInfo = {
 					</a>
 				</div>
 			</div>
+			<div class="carousel-dots" id="carousel-dots"></div>
 		</div>
 		<div class="footer">
 			<div class="footer-links">
@@ -335,12 +346,13 @@ const buildInfo = {
 			const projectsSection = document.querySelector('.projects-section');
 			const projectsHint = document.querySelector('.projects-hint');
 			const hintText = document.querySelector('.hint-text') as HTMLElement | null;
-			const textElement = document.querySelector('.text');
 			const originalHintText = 'what have we built?';
 			const matrixHintText = 'there is no spoon';
 			let projectsVisible = false;
 			let activeCardIndex = 0;
 			const projectCards = document.querySelectorAll('.project-card');
+			const carousel = document.getElementById('projects-carousel');
+			const dotsContainer = document.getElementById('carousel-dots');
 
 			// Matrix effect integration with hint text
 			const scalableText = document.querySelector('.text') as HTMLElement;
@@ -364,6 +376,22 @@ const buildInfo = {
 				});
 			}
 
+			// Initialize carousel dots
+			function initializeCarouselDots() {
+				if (!dotsContainer) return;
+				dotsContainer.innerHTML = '';
+				projectCards.forEach((_, index) => {
+					const dot = document.createElement('button');
+					dot.classList.add('carousel-dot');
+					dot.setAttribute('aria-label', `Go to project ${index + 1}`);
+					dot.addEventListener('click', (e) => {
+						e.stopPropagation();
+						updateActiveCard(index);
+					});
+					dotsContainer.appendChild(dot);
+				});
+			}
+
 			function updateActiveCard(index: number) {
 				projectCards.forEach((card, i) => {
 					if (i === index) {
@@ -373,6 +401,18 @@ const buildInfo = {
 					}
 				});
 				activeCardIndex = index;
+
+				// Update dots
+				if (dotsContainer) {
+					const dots = dotsContainer.querySelectorAll('.carousel-dot');
+					dots.forEach((dot, i) => {
+						if (i === index) {
+							dot.classList.add('active');
+						} else {
+							dot.classList.remove('active');
+						}
+					});
+				}
 			}
 
 			function toggleProjects() {
@@ -386,6 +426,60 @@ const buildInfo = {
 					projectsSection.classList.remove('visible');
 					projectsHint.classList.remove('hidden');
 				}
+			}
+
+			// Touch/Swipe support for mobile
+			let touchStartX = 0;
+			let touchEndX = 0;
+			const SWIPE_THRESHOLD = 50; // Minimum distance for a swipe
+
+			function handleSwipe() {
+				const swipeDistance = touchEndX - touchStartX;
+				if (Math.abs(swipeDistance) > SWIPE_THRESHOLD) {
+					if (swipeDistance > 0) {
+						// Swiped right - go to previous card
+						const newIndex = activeCardIndex > 0 ? activeCardIndex - 1 : projectCards.length - 1;
+						updateActiveCard(newIndex);
+					} else {
+						// Swiped left - go to next card
+						const newIndex = activeCardIndex < projectCards.length - 1 ? activeCardIndex + 1 : 0;
+						updateActiveCard(newIndex);
+					}
+				}
+			}
+
+			if (carousel) {
+				carousel.addEventListener('touchstart', (e) => {
+					touchStartX = e.changedTouches[0].screenX;
+				}, { passive: true });
+
+				carousel.addEventListener('touchend', (e) => {
+					touchEndX = e.changedTouches[0].screenX;
+					handleSwipe();
+				}, { passive: true });
+			}
+
+			// Initialize dots on page load
+			initializeCarouselDots();
+
+			// Carousel arrow navigation
+			const prevButton = document.getElementById('carousel-prev');
+			const nextButton = document.getElementById('carousel-next');
+
+			if (prevButton) {
+				prevButton.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const newIndex = activeCardIndex > 0 ? activeCardIndex - 1 : projectCards.length - 1;
+					updateActiveCard(newIndex);
+				});
+			}
+
+			if (nextButton) {
+				nextButton.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const newIndex = activeCardIndex < projectCards.length - 1 ? activeCardIndex + 1 : 0;
+					updateActiveCard(newIndex);
+				});
 			}
 
 			// Add click handlers for project cards
@@ -403,16 +497,12 @@ const buildInfo = {
 				});
 			}
 
-			if (textElement) {
-				textElement.addEventListener('click', (e) => {
-					e.stopPropagation();
-					toggleProjects();
-				});
-			}
+			// Matrix mode toggle on text element (removed project toggle from here)
+			// Now only hint text opens projects
 
 			document.addEventListener('click', (e) => {
-				if (projectsVisible && projectsSection && textElement && e.target instanceof Node) {
-					if (!projectsSection.contains(e.target) && !textElement.contains(e.target)) {
+				if (projectsVisible && projectsSection && e.target instanceof Node) {
+					if (!projectsSection.contains(e.target) && !hintText?.contains(e.target)) {
 						toggleProjects();
 					}
 				}
@@ -881,7 +971,10 @@ const buildInfo = {
 				}
 			}
 
-			if (hintText) {
+			// Check if device is mobile (disable cursor animations for performance)
+			const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+			if (hintText && !isMobile) {
 				hintText.addEventListener('mouseenter', () => {
 					if (projectsVisible) return;
 
@@ -1270,6 +1363,112 @@ const buildInfo = {
 		border-bottom-color: #666666;
 	}
 
+	/* Carousel navigation arrows */
+	.carousel-arrow {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: rgba(255, 255, 255, 0.9);
+		border: 1px solid #e0e0e0;
+		border-radius: 50%;
+		width: 48px;
+		height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 10001;
+		transition: all 0.3s ease;
+		color: #666666;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.projects-section.visible .carousel-arrow {
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	.carousel-arrow:hover {
+		background: rgba(255, 255, 255, 1);
+		border-color: #000000;
+		color: #000000;
+		transform: translateY(-50%) scale(1.1);
+	}
+
+	.carousel-arrow:active {
+		transform: translateY(-50%) scale(0.95);
+	}
+
+	.carousel-arrow-left {
+		left: 1rem;
+	}
+
+	.carousel-arrow-right {
+		right: 1rem;
+	}
+
+	/* Hide arrows on desktop where both cards are visible */
+	@media (min-width: 769px) {
+		.carousel-arrow {
+			display: none;
+		}
+	}
+
+	/* Adjust arrow position on small mobile screens */
+	@media (max-width: 480px) {
+		.carousel-arrow {
+			width: 40px;
+			height: 40px;
+		}
+
+		.carousel-arrow-left {
+			left: 0.5rem;
+		}
+
+		.carousel-arrow-right {
+			right: 0.5rem;
+		}
+	}
+
+	/* Carousel dots */
+	.carousel-dots {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		margin-top: 2rem;
+		padding: 1rem;
+	}
+
+	.carousel-dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		border: 1px solid #999999;
+		background: transparent;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		padding: 0;
+	}
+
+	.carousel-dot:hover {
+		background: #cccccc;
+		border-color: #666666;
+	}
+
+	.carousel-dot.active {
+		background: #000000;
+		border-color: #000000;
+		transform: scale(1.2);
+	}
+
+	/* Hide dots on desktop where both cards are visible */
+	@media (min-width: 769px) {
+		.carousel-dots {
+			display: none;
+		}
+	}
+
 	/* Collaborative cursors */
 	.collab-cursor {
 		position: fixed;
@@ -1284,6 +1483,13 @@ const buildInfo = {
 
 	.collab-cursor.active {
 		opacity: 1;
+	}
+
+	/* Disable collaborative cursors on mobile for better performance */
+	@media (max-width: 768px) {
+		.collab-cursor {
+			display: none !important;
+		}
 	}
 
 	.collab-cursor svg {
